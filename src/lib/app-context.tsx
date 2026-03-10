@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { Request, RequestStatus, initialRequests, mockStudent, StudentProfile } from "@/lib/mock-data";
+import { Request, RequestStatus, initialRequests, mockStudent, StudentProfile, allStudents } from "@/lib/mock-data";
 
 interface AppState {
   requests: Request[];
   student: StudentProfile;
+  students: StudentProfile[];
   addRequest: (req: Omit<Request, "id" | "createdAt" | "status">) => void;
   updateStatus: (id: string, status: RequestStatus) => void;
+  verifyParentContact: (studentId: string, coordinatorName: string) => void;
+  updateParentPhone: (studentId: string, phone: string) => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -21,6 +24,7 @@ let nextId = 100;
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [requests, setRequests] = useState<Request[]>(initialRequests);
   const [student, setStudent] = useState<StudentProfile>(mockStudent);
+  const [students, setStudents] = useState<StudentProfile[]>(allStudents);
 
   const addRequest = useCallback((req: Omit<Request, "id" | "createdAt" | "status">) => {
     const newReq: Request = {
@@ -36,7 +40,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRequests((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status } : r))
     );
-    // Simulate attendance bump when OD approved
     if (status === "approved") {
       setRequests((prev) => {
         const req = prev.find((r) => r.id === id);
@@ -48,8 +51,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [student.id]);
 
+  const verifyParentContact = useCallback((studentId: string, coordinatorName: string) => {
+    const now = new Date().toISOString().split("T")[0];
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === studentId
+          ? { ...s, parentContact: { ...s.parentContact, verified: true, verifiedBy: coordinatorName, verifiedAt: now } }
+          : s
+      )
+    );
+    if (studentId === student.id) {
+      setStudent((s) => ({ ...s, parentContact: { ...s.parentContact, verified: true, verifiedBy: coordinatorName, verifiedAt: now } }));
+    }
+  }, [student.id]);
+
+  const updateParentPhone = useCallback((studentId: string, phone: string) => {
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === studentId
+          ? { ...s, parentContact: { phone, verified: false } }
+          : s
+      )
+    );
+    if (studentId === student.id) {
+      setStudent((s) => ({ ...s, parentContact: { phone, verified: false } }));
+    }
+  }, [student.id]);
+
   return (
-    <AppContext.Provider value={{ requests, student, addRequest, updateStatus }}>
+    <AppContext.Provider value={{ requests, student, students, addRequest, updateStatus, verifyParentContact, updateParentPhone }}>
       {children}
     </AppContext.Provider>
   );

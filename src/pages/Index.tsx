@@ -1,7 +1,26 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, Shield } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { GraduationCap, Shield, BarChart3 } from "lucide-react";
+
+const roles = [
+  {
+    path: "/student",
+    icon: GraduationCap,
+    title: "Student Portal",
+    desc: "Apply for OD, Leave & Outpass",
+  },
+  {
+    path: "/admin",
+    icon: Shield,
+    title: "Coordinator Console",
+    desc: "Review requests & verify contacts",
+  },
+  {
+    path: "/hod",
+    icon: BarChart3,
+    title: "HOD Dashboard",
+    desc: "Reports, statistics & oversight",
+  },
+];
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,31 +38,21 @@ const Index = () => {
         </div>
 
         <div className="flex flex-col gap-6">
-          <button
-            onClick={() => navigate("/student")}
-            className="shadow-raised rounded-2xl p-8 bg-background transition-shadow-neu hover:shadow-inset active:shadow-inset-deep flex items-center gap-5 cursor-pointer group"
-          >
-            <div className="shadow-raised-sm rounded-xl p-3 bg-background transition-shadow-neu group-hover:shadow-inset">
-              <GraduationCap className="w-8 h-8 text-primary" />
-            </div>
-            <div className="text-left">
-              <p className="font-outfit font-semibold text-lg text-foreground">Student Portal</p>
-              <p className="text-sm text-muted-foreground">Apply for OD, Leave & Outpass</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate("/admin")}
-            className="shadow-raised rounded-2xl p-8 bg-background transition-shadow-neu hover:shadow-inset active:shadow-inset-deep flex items-center gap-5 cursor-pointer group"
-          >
-            <div className="shadow-raised-sm rounded-xl p-3 bg-background transition-shadow-neu group-hover:shadow-inset">
-              <Shield className="w-8 h-8 text-primary" />
-            </div>
-            <div className="text-left">
-              <p className="font-outfit font-semibold text-lg text-foreground">Admin Console</p>
-              <p className="text-sm text-muted-foreground">Review & manage student requests</p>
-            </div>
-          </button>
+          {roles.map((role) => (
+            <button
+              key={role.path}
+              onClick={() => navigate(role.path)}
+              className="shadow-raised rounded-2xl p-8 bg-background transition-shadow-neu hover:shadow-inset active:shadow-inset-deep flex items-center gap-5 cursor-pointer group"
+            >
+              <div className="shadow-raised-sm rounded-xl p-3 bg-background transition-shadow-neu group-hover:shadow-inset">
+                <role.icon className="w-8 h-8 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="font-outfit font-semibold text-lg text-foreground">{role.title}</p>
+                <p className="text-sm text-muted-foreground">{role.desc}</p>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { AppProvider } from "@/lib/app-context";
 import Index from "./pages/Index";
 import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import HodDashboard from "./pages/HodDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/hod" element={<HodDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

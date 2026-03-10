@@ -1,5 +1,5 @@
 import { useAppState } from "@/lib/app-context";
-import { User, Percent } from "lucide-react";
+import { User, Phone, CheckCircle2, AlertCircle } from "lucide-react";
 
 const StudentProfile = () => {
   const { student } = useAppState();
@@ -20,6 +20,21 @@ const StudentProfile = () => {
           <p className="font-mono-data text-lg font-semibold text-primary">{student.attendance}%</p>
           <p className="text-xs text-muted-foreground font-outfit">Attendance</p>
         </div>
+      </div>
+
+      {/* Parent contact */}
+      <div className="mt-3 flex items-center gap-2 text-sm">
+        <Phone className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="font-mono-data text-foreground">{student.parentContact.phone}</span>
+        {student.parentContact.verified ? (
+          <span className="flex items-center gap-1 text-xs text-approved font-outfit">
+            <CheckCircle2 className="w-3 h-3" /> Verified
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 text-xs text-pending font-outfit">
+            <AlertCircle className="w-3 h-3" /> Pending verification
+          </span>
+        )}
       </div>
     </div>
   );

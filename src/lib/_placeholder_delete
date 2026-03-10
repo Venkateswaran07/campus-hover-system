@@ -1,3 +1,0 @@
-import { create } from 'zustand' is not available, so we use React context and state.
-
-// We'll use a simple mock data module instead.

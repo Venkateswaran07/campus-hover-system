@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, BarChart3, FileText, LogOut, Clock } from "lucide-react";
-import { useAppState } from "@/lib/app-context";
+import { ArrowLeft, User, BarChart3, FileText, LogOut as LogOutIcon, Clock } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import StudentProfile from "@/components/student/StudentProfile";
 import RequestForm from "@/components/student/RequestForm";
@@ -12,7 +13,7 @@ const tabs = [
   { id: "status" as const, label: "Status", icon: BarChart3 },
   { id: "od" as const, label: "OD", icon: FileText },
   { id: "leave" as const, label: "Leave", icon: Clock },
-  { id: "outpass" as const, label: "Outpass", icon: LogOut },
+  { id: "outpass" as const, label: "Outpass", icon: LogOutIcon },
 ];
 
 type TabId = "status" | "od" | "leave" | "outpass";
@@ -20,21 +21,26 @@ type TabId = "status" | "od" | "leave" | "outpass";
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabId>("status");
   const navigate = useNavigate();
+  const { signOut, user, profile } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="p-4 flex items-center gap-3">
         <button
-          onClick={() => navigate("/")}
+          onClick={handleSignOut}
           className="shadow-raised-sm rounded-lg p-2 bg-background transition-shadow-neu hover:shadow-inset cursor-pointer"
+          title="Sign Out"
         >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+          <LogOutIcon className="w-5 h-5 text-foreground" />
         </button>
         <h1 className="text-xl font-outfit font-semibold text-foreground">Student Portal</h1>
       </header>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 pb-24">
         <StudentProfile />
         
@@ -46,7 +52,6 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* Floating bottom nav pill */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
         <nav className="shadow-raised rounded-2xl bg-background p-2 flex gap-1">
           {tabs.map((tab) => (

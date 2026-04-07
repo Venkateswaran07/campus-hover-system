@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import StudentProfile from "@/components/student/StudentProfile";
 import RequestForm from "@/components/student/RequestForm";
 import StatusTracker from "@/components/student/StatusTracker";
+import NotificationBell from "@/components/student/NotificationBell";
 import type { RequestType } from "@/lib/mock-data";
 
 const tabs = [

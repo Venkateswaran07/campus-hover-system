@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import StudentProfile from "@/components/student/StudentProfile";
 import RequestForm from "@/components/student/RequestForm";
 import StatusTracker from "@/components/student/StatusTracker";
+import NotificationBell from "@/components/student/NotificationBell";
 import type { RequestType } from "@/lib/mock-data";
 
 const tabs = [
@@ -38,7 +39,10 @@ const StudentDashboard = () => {
         >
           <LogOutIcon className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-xl font-outfit font-semibold text-foreground">Student Portal</h1>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <h1 className="text-xl font-outfit font-semibold text-foreground">Student Portal</h1>
+        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pb-24">

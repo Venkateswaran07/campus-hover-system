@@ -1,17 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, Shield, BarChart3, ArrowLeft, LogIn, UserPlus } from "lucide-react";
+import { GraduationCap, Shield, BarChart3, ArrowLeft, LogIn, UserPlus, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DEPARTMENTS, YEARS } from "@/lib/mock-data";
 
 type RoleOption = "student" | "coordinator" | "hod";
 
-const roleConfig = {
-  student: { icon: GraduationCap, title: "Student Login", color: "text-primary" },
-  coordinator: { icon: Shield, title: "Coordinator Login", color: "text-primary" },
-  hod: { icon: BarChart3, title: "HOD Login", color: "text-primary" },
+const COORDINATOR_ACCESS_CODE = "COORD2025";
+
+const roleConfig: Record<RoleOption, { icon: any; title: string; desc: string }> = {
+  student: { icon: GraduationCap, title: "Student Portal", desc: "Apply for OD, Leave & Outpass" },
+  coordinator: { icon: Shield, title: "Coordinator Console", desc: "Review requests & verify contacts" },
+  hod: { icon: BarChart3, title: "HOD Dashboard", desc: "Reports, statistics & oversight" },
 };
 
 const Login = () => {
@@ -21,7 +24,6 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -29,6 +31,7 @@ const Login = () => {
   const [year, setYear] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [parentPhone, setParentPhone] = useState("");
+  const [accessCode, setAccessCode] = useState("");
 
   if (!selectedRole) {
     return (
@@ -38,10 +41,10 @@ const Login = () => {
             <h1 className="text-3xl md:text-4xl font-outfit font-bold text-foreground tracking-tight mb-2">
               Campus Governance
             </h1>
-            <p className="text-muted-foreground font-outfit">Select your role to continue</p>
+            <p className="text-muted-foreground font-outfit">Select your portal to continue</p>
           </div>
           <div className="flex flex-col gap-6">
-            {(["student", "coordinator", "hod"] as RoleOption[]).map((r) => {
+            {(Object.keys(roleConfig) as RoleOption[]).map((r) => {
               const cfg = roleConfig[r];
               return (
                 <button
@@ -54,9 +57,7 @@ const Login = () => {
                   </div>
                   <div className="text-left">
                     <p className="font-outfit font-semibold text-lg text-foreground">{cfg.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {r === "student" ? "Apply for OD, Leave & Outpass" : r === "coordinator" ? "Review requests & verify contacts" : "Reports, statistics & oversight"}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{cfg.desc}</p>
                   </div>
                 </button>
               );
@@ -67,12 +68,29 @@ const Login = () => {
     );
   }
 
+  // HOD portal: only sign-in, no sign-up
+  const showSignUpToggle = selectedRole !== "hod";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (isSignUp) {
+        // Block HOD signup entirely
+        if (selectedRole === "hod") {
+          toast.error("HOD accounts cannot be created. Please contact admin.");
+          return;
+        }
+
+        // Validate coordinator access code
+        if (selectedRole === "coordinator") {
+          if (accessCode !== COORDINATOR_ACCESS_CODE) {
+            toast.error("Invalid coordinator access code. Contact your department admin for the code.");
+            return;
+          }
+        }
+
         const { error } = await signUp(email, password, {
           full_name: fullName,
           role: selectedRole,
@@ -84,17 +102,53 @@ const Login = () => {
         if (error) {
           toast.error(error.message);
         } else {
-          toast.success("Account created! You can now sign in.");
+          toast.success("Account created! Please check your email to verify, then sign in.");
           setIsSignUp(false);
         }
       } else {
+        // Sign in
         const { error } = await signIn(email, password);
         if (error) {
           toast.error(error.message);
-        } else {
-          toast.success("Signed in successfully!");
-          navigate(selectedRole === "student" ? "/student" : selectedRole === "coordinator" ? "/admin" : "/hod");
+          return;
         }
+
+        // After sign-in, verify the user's actual role matches the selected portal
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error("Login failed. Please try again.");
+          return;
+        }
+
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        const actualRole = roleData?.role as RoleOption | null;
+
+        if (!actualRole) {
+          toast.error("No role assigned to this account. Please sign up first.");
+          await supabase.auth.signOut();
+          return;
+        }
+
+        if (actualRole !== selectedRole) {
+          toast.error(`This account is registered as "${actualRole}". Please select the correct portal.`);
+          await supabase.auth.signOut();
+          return;
+        }
+
+        // HOD portal: only allow the designated email
+        if (selectedRole === "hod" && email.toLowerCase() !== "310624104366@eec.srmrmp.edu.in") {
+          toast.error("Only the designated HOD account can access this portal.");
+          await supabase.auth.signOut();
+          return;
+        }
+
+        toast.success("Signed in successfully!");
+        navigate(actualRole === "student" ? "/student" : actualRole === "coordinator" ? "/admin" : "/hod");
       }
     } finally {
       setLoading(false);
@@ -107,7 +161,7 @@ const Login = () => {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md animate-float-up">
         <button
-          onClick={() => setSelectedRole(null)}
+          onClick={() => { setSelectedRole(null); setIsSignUp(false); setAccessCode(""); }}
           className="shadow-raised-sm rounded-lg p-2 bg-background transition-shadow-neu hover:shadow-inset cursor-pointer mb-6"
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -118,7 +172,12 @@ const Login = () => {
             <div className="shadow-inset rounded-xl p-3">
               <cfg.icon className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="font-outfit font-semibold text-xl text-foreground">{cfg.title}</h2>
+            <div>
+              <h2 className="font-outfit font-semibold text-xl text-foreground">{cfg.title}</h2>
+              {selectedRole === "hod" && (
+                <p className="text-xs text-muted-foreground">Authorized access only</p>
+              )}
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -160,6 +219,23 @@ const Login = () => {
                 minLength={6}
               />
             </div>
+
+            {/* Coordinator access code */}
+            {isSignUp && selectedRole === "coordinator" && (
+              <div>
+                <label className="text-sm text-muted-foreground font-outfit mb-1 block flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Coordinator Access Code
+                </label>
+                <input
+                  type="password"
+                  value={accessCode}
+                  onChange={(e) => setAccessCode(e.target.value)}
+                  className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground placeholder:text-muted-foreground outline-none"
+                  placeholder="Enter the access code provided by admin"
+                  required
+                />
+              </div>
+            )}
 
             {isSignUp && selectedRole === "student" && (
               <>
@@ -213,7 +289,7 @@ const Login = () => {
               </>
             )}
 
-            {isSignUp && selectedRole !== "student" && (
+            {isSignUp && selectedRole === "coordinator" && (
               <div>
                 <label className="text-sm text-muted-foreground font-outfit mb-1 block">Department</label>
                 <select
@@ -238,14 +314,16 @@ const Login = () => {
             </Button>
           </form>
 
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-primary font-outfit hover:underline cursor-pointer"
-            >
-              {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
-            </button>
-          </div>
+          {showSignUpToggle && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-primary font-outfit hover:underline cursor-pointer"
+              >
+                {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

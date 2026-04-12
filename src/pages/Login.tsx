@@ -128,14 +128,11 @@ const Login = () => {
 
         const actualRole = roleData?.role as RoleOption | null;
 
-        if (!actualRole) {
-          toast.error("No role assigned to this account. Please sign up first.");
-          await supabase.auth.signOut();
-          return;
-        }
+        // If no role in user_roles, default to student
+        const effectiveRole: RoleOption = actualRole ?? "student";
 
-        if (actualRole !== selectedRole) {
-          toast.error(`This account is registered as "${actualRole}". Please select the correct portal.`);
+        if (effectiveRole !== selectedRole) {
+          toast.error(`This account is registered as "${effectiveRole}". Please select the correct portal.`);
           await supabase.auth.signOut();
           return;
         }
@@ -148,7 +145,7 @@ const Login = () => {
         }
 
         toast.success("Signed in successfully!");
-        navigate(actualRole === "student" ? "/student" : actualRole === "coordinator" ? "/admin" : "/hod");
+        navigate(effectiveRole === "student" ? "/student" : effectiveRole === "coordinator" ? "/admin" : "/hod");
       }
     } finally {
       setLoading(false);

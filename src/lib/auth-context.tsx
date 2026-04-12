@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
       supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
     ]);
-    setRole((roleRes.data?.role as AppRole) ?? null);
+    setRole((roleRes.data?.role as AppRole) ?? "student");
     setProfile(profileRes.data);
   };
 
@@ -85,8 +85,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (error || !data.user) return { error: error || new Error("Signup failed") };
 
-    // Insert role
-    await supabase.from("user_roles").insert({ user_id: data.user.id, role: meta.role });
+    // Only insert role for coordinator (students don't need role; HOD is pre-set)
+    if (meta.role === "coordinator") {
+      await supabase.from("user_roles").insert({ user_id: data.user.id, role: meta.role });
+    }
 
     // Update profile with extra fields
     await supabase.from("profiles").update({

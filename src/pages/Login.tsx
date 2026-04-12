@@ -102,8 +102,15 @@ const Login = () => {
         if (error) {
           toast.error(error.message);
         } else {
-          toast.success("Account created! Please check your email to verify, then sign in.");
-          setIsSignUp(false);
+          toast.success("Account created! Signing you in...");
+          // Auto-confirm is enabled, so sign in immediately
+          const { error: signInErr } = await signIn(email, password);
+          if (signInErr) {
+            toast.error("Account created but sign-in failed. Please sign in manually.");
+            setIsSignUp(false);
+          } else {
+            navigate(selectedRole === "student" ? "/student" : selectedRole === "coordinator" ? "/admin" : "/hod");
+          }
         }
       } else {
         // Sign in

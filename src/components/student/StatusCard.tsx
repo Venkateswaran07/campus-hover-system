@@ -1,5 +1,4 @@
-import { Request } from "@/lib/mock-data";
-import { CheckCircle2, Clock, XCircle, QrCode, CalendarDays, FileText, LogOut } from "lucide-react";
+import { CheckCircle2, Clock, XCircle, CalendarDays, FileText, LogOut } from "lucide-react";
 import QRCodeDisplay from "./QRCodeDisplay";
 
 const typeIcons = {
@@ -15,11 +14,11 @@ const typeLabels = {
 };
 
 interface Props {
-  request: Request;
+  request: any;
 }
 
 const StatusCard = ({ request }: Props) => {
-  const Icon = typeIcons[request.type];
+  const Icon = typeIcons[request.type as keyof typeof typeIcons] || FileText;
   const isApproved = request.status === "approved";
 
   return (
@@ -35,7 +34,9 @@ const StatusCard = ({ request }: Props) => {
           </div>
           <div>
             <p className="font-outfit font-medium text-foreground">{typeLabels[request.type]}</p>
-            <p className="text-xs text-muted-foreground font-mono-data">{request.createdAt}</p>
+            <p className="text-xs text-muted-foreground font-mono-data">
+              {request.created_at ? new Date(request.created_at).toLocaleDateString() : ""}
+            </p>
           </div>
         </div>
 
@@ -44,18 +45,18 @@ const StatusCard = ({ request }: Props) => {
 
       <p className="mt-3 text-sm text-muted-foreground font-outfit">{request.reason}</p>
 
-      {request.type === "od" && request.eventName && (
+      {request.type === "od" && request.event_name && (
         <p className="mt-1 text-xs text-muted-foreground font-mono-data">
-          {request.eventName} · {request.eventDate}
+          {request.event_name} · {request.event_date}
         </p>
       )}
       {request.type === "leave" && (
         <p className="mt-1 text-xs text-muted-foreground font-mono-data">
-          {request.fromDate} → {request.toDate}
+          {request.from_date} → {request.to_date}
         </p>
       )}
-      {request.type === "outpass" && request.returnBy && (
-        <ReturnTimer returnBy={request.returnBy} />
+      {request.type === "outpass" && request.return_by && (
+        <ReturnTimer returnBy={request.return_by} />
       )}
 
       {isApproved && <QRCodeDisplay requestId={request.id} />}

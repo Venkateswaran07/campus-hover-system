@@ -25,6 +25,21 @@ const HodDashboard = () => {
       setStudents(stuRes.data || []);
     };
     fetchData();
+
+    // Realtime: refresh when requests or profiles change
+    const ch1 = supabase
+      .channel("hod-requests")
+      .on("postgres_changes", { event: "*", schema: "public", table: "requests" }, () => fetchData())
+      .subscribe();
+    const ch2 = supabase
+      .channel("hod-profiles")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => fetchData())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ch1);
+      supabase.removeChannel(ch2);
+    };
   }, []);
 
   const totalRequests = requests.length;

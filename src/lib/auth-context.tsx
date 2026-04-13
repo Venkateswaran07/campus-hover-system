@@ -11,7 +11,7 @@ interface AuthState {
   profile: any | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, meta: { full_name: string; role: AppRole; department?: string; year?: number; roll_number?: string; parent_phone?: string }) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, meta: { full_name: string; role: AppRole; department?: string; year?: number; roll_number?: string; parent_phone?: string; section?: string }) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (
     email: string,
     password: string,
-    meta: { full_name: string; role: AppRole; department?: string; year?: number; roll_number?: string; parent_phone?: string }
+    meta: { full_name: string; role: AppRole; department?: string; year?: number; roll_number?: string; parent_phone?: string; section?: string }
   ) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -97,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       year: meta.year || null,
       roll_number: meta.roll_number || null,
       parent_phone: meta.parent_phone || null,
+      section: meta.section || null,
     }).eq("user_id", data.user.id);
 
     return { error: null };

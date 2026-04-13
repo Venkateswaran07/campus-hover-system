@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Filter, Search, Users, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { DEPARTMENTS, YEARS, RequestType } from "@/lib/mock-data";
+import { DEPARTMENTS, YEARS, SECTIONS, RequestType } from "@/lib/mock-data";
 import AdminRequestRow from "@/components/admin/AdminRequestRow";
 import ParentContactPanel from "@/components/admin/ParentContactPanel";
 

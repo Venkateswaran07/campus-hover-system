@@ -64,6 +64,7 @@ export type Database = {
           parent_phone_verified_at: string | null
           parent_phone_verified_by: string | null
           roll_number: string | null
+          section: string | null
           updated_at: string
           user_id: string
           year: number | null
@@ -79,6 +80,7 @@ export type Database = {
           parent_phone_verified_at?: string | null
           parent_phone_verified_by?: string | null
           roll_number?: string | null
+          section?: string | null
           updated_at?: string
           user_id: string
           year?: number | null
@@ -94,6 +96,7 @@ export type Database = {
           parent_phone_verified_at?: string | null
           parent_phone_verified_by?: string | null
           roll_number?: string | null
+          section?: string | null
           updated_at?: string
           user_id?: string
           year?: number | null
@@ -113,6 +116,7 @@ export type Database = {
           return_by: string | null
           reviewed_by: string | null
           roll_number: string | null
+          section: string | null
           status: string
           student_id: string
           student_name: string
@@ -133,6 +137,7 @@ export type Database = {
           return_by?: string | null
           reviewed_by?: string | null
           roll_number?: string | null
+          section?: string | null
           status?: string
           student_id: string
           student_name: string
@@ -153,6 +158,7 @@ export type Database = {
           return_by?: string | null
           reviewed_by?: string | null
           roll_number?: string | null
+          section?: string | null
           status?: string
           student_id?: string
           student_name?: string

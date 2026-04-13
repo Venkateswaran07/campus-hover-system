@@ -44,6 +44,7 @@ const RequestForm = ({ type, onSubmitted }: Props) => {
         roll_number: profile?.roll_number || null,
         department: profile?.department || null,
         year: profile?.year || null,
+        section: profile?.section || null,
         type,
         reason,
         event_name: type === "od" ? eventName : null,

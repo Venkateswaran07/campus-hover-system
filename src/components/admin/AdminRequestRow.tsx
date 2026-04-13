@@ -65,7 +65,7 @@ const AdminRequestRow = ({ request, onStatusChange }: Props) => {
       </div>
 
       <div className="flex items-center gap-2 text-xs font-mono-data text-muted-foreground shrink-0">
-        <span className="shadow-inset rounded-md px-2 py-1">{request.department}</span>
+        <span className="shadow-inset rounded-md px-2 py-1">{request.department}{request.section ? `-${request.section}` : ""}</span>
         <span className="shadow-inset rounded-md px-2 py-1">Y{request.year}</span>
         <span className="shadow-inset rounded-md px-2 py-1 uppercase">{typeLabels[request.type]}</span>
         <span className="shadow-inset rounded-md px-2 py-1">{createdDate}</span>

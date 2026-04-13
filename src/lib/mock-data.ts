@@ -39,6 +39,7 @@ export interface Request {
 
 export const DEPARTMENTS = ["CSE", "ECE", "EEE", "MECH", "CIVIL", "IT"];
 export const YEARS = [1, 2, 3, 4];
+export const SECTIONS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 export const mockStudent: StudentProfile = {
   id: "s1",

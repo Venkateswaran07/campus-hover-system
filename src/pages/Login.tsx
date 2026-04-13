@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { DEPARTMENTS, YEARS } from "@/lib/mock-data";
+import { DEPARTMENTS, YEARS, SECTIONS } from "@/lib/mock-data";
 
 type RoleOption = "student" | "coordinator" | "hod";
 
@@ -32,6 +32,7 @@ const Login = () => {
   const [rollNumber, setRollNumber] = useState("");
   const [parentPhone, setParentPhone] = useState("");
   const [accessCode, setAccessCode] = useState("");
+  const [section, setSection] = useState("");
 
   if (!selectedRole) {
     return (
@@ -98,6 +99,7 @@ const Login = () => {
           year: year ? Number(year) : undefined,
           roll_number: rollNumber || undefined,
           parent_phone: parentPhone || undefined,
+          section: section || undefined,
         });
         if (error) {
           toast.error(error.message);
@@ -243,7 +245,7 @@ const Login = () => {
 
             {isSignUp && selectedRole === "student" && (
               <>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="text-sm text-muted-foreground font-outfit mb-1 block">Department</label>
                     <select
@@ -266,6 +268,18 @@ const Login = () => {
                     >
                       <option value="">Select</option>
                       {YEARS.map((y) => <option key={y} value={y}>Year {y}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm text-muted-foreground font-outfit mb-1 block">Section</label>
+                    <select
+                      value={section}
+                      onChange={(e) => setSection(e.target.value)}
+                      className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
+                      required
+                    >
+                      <option value="">Select</option>
+                      {SECTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                 </div>
@@ -294,16 +308,31 @@ const Login = () => {
             )}
 
             {isSignUp && selectedRole === "coordinator" && (
-              <div>
-                <label className="text-sm text-muted-foreground font-outfit mb-1 block">Department</label>
-                <select
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
-                >
-                  <option value="">All Departments</option>
-                  {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
-                </select>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm text-muted-foreground font-outfit mb-1 block">Department</label>
+                  <select
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
+                    required
+                  >
+                    <option value="">Select</option>
+                    {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground font-outfit mb-1 block">Section</label>
+                  <select
+                    value={section}
+                    onChange={(e) => setSection(e.target.value)}
+                    className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
+                    required
+                  >
+                    <option value="">Select</option>
+                    {SECTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
               </div>
             )}
 

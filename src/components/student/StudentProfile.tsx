@@ -15,7 +15,7 @@ const StudentProfile = () => {
         <div className="flex-1">
           <h2 className="font-outfit font-semibold text-lg text-foreground">{profile.full_name || "Student"}</h2>
           <p className="text-sm text-muted-foreground font-mono-data">
-            {profile.roll_number || "N/A"} · {profile.department || "N/A"} · Year {profile.year || "N/A"}
+            {profile.roll_number || "N/A"} · {profile.department || "N/A"}{profile.section ? `-${profile.section}` : ""} · Year {profile.year || "N/A"}
           </p>
         </div>
         <div className="shadow-inset rounded-xl p-3 text-center min-w-[72px]">

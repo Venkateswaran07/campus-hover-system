@@ -7,6 +7,8 @@ import { DEPARTMENTS, YEARS, SECTIONS, RequestType } from "@/lib/mock-data";
 import AdminRequestRow from "@/components/admin/AdminRequestRow";
 import ParentContactPanel from "@/components/admin/ParentContactPanel";
 
+import { DbRequest } from "@/lib/types";
+
 const types: { value: RequestType | "all"; label: string }[] = [
   { value: "all", label: "All Types" },
   { value: "od", label: "OD" },
@@ -19,7 +21,7 @@ type AdminTab = "requests" | "contacts";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<DbRequest[]>([]);
   const [filterDept, setFilterDept] = useState("all");
   const [filterYear, setFilterYear] = useState("all");
   const [filterType, setFilterType] = useState<RequestType | "all">("all");
@@ -94,15 +96,15 @@ const AdminDashboard = () => {
                   <input type="text" placeholder="Search by name or roll no..." value={search} onChange={(e) => setSearch(e.target.value)}
                     className="bg-transparent outline-none text-sm font-outfit text-foreground placeholder:text-muted-foreground flex-1" />
                 </div>
-                <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} className="shadow-inset rounded-lg px-3 py-2 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer">
+                <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} title="Filter by Department" className="shadow-inset rounded-lg px-3 py-2 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer">
                   <option value="all">All Depts</option>
                   {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
-                <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className="shadow-inset rounded-lg px-3 py-2 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer">
+                <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} title="Filter by Year" className="shadow-inset rounded-lg px-3 py-2 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer">
                   <option value="all">All Years</option>
                   {YEARS.map((y) => <option key={y} value={y}>Year {y}</option>)}
                 </select>
-                <select value={filterType} onChange={(e) => setFilterType(e.target.value as RequestType | "all")} className="shadow-inset rounded-lg px-3 py-2 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer">
+                <select value={filterType} onChange={(e) => setFilterType(e.target.value as RequestType | "all")} title="Filter by Request Type" className="shadow-inset rounded-lg px-3 py-2 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer">
                   {types.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
@@ -117,7 +119,7 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="text-sm font-outfit font-semibold text-pending mb-3 uppercase tracking-wider">Pending Review ({pending.length})</h3>
                       <div className="space-y-3">
-                        {pending.map((r) => <AdminRequestRow key={r.id} request={r} onStatusChange={fetchRequests} />)}
+                        {pending.map((r) => <AdminRequestRow key={r.id} request={r} role="coordinator" onStatusChange={fetchRequests} />)}
                       </div>
                     </div>
                   )}
@@ -125,7 +127,7 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="text-sm font-outfit font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Resolved ({resolved.length})</h3>
                       <div className="space-y-3">
-                        {resolved.map((r) => <AdminRequestRow key={r.id} request={r} onStatusChange={fetchRequests} />)}
+                        {resolved.map((r) => <AdminRequestRow key={r.id} request={r} role="coordinator" onStatusChange={fetchRequests} />)}
                       </div>
                     </div>
                   )}

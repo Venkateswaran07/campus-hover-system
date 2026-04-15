@@ -294,14 +294,14 @@ const Login = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm text-white/70 font-outfit mb-1 block">Department</label>
-                  <select value={department} onChange={(e) => setDepartment(e.target.value)} className={glassSelect} required>
+                  <select title="Select Department" value={department} onChange={(e) => setDepartment(e.target.value)} className={glassSelect} required>
                     <option value="">Select</option>
                     {DEPARTMENTS.map((d) => <option key={d} value={d} className="text-black">{d}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-sm text-white/70 font-outfit mb-1 block">Section</label>
-                  <select value={section} onChange={(e) => setSection(e.target.value)} className={glassSelect} required>
+                  <select title="Select Section" value={section} onChange={(e) => setSection(e.target.value)} className={glassSelect} required>
                     <option value="">Select</option>
                     {SECTIONS.map((s) => <option key={s} value={s} className="text-black">{s}</option>)}
                   </select>

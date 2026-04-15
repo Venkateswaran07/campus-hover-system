@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, XCircle, CalendarDays, FileText, LogOut } from "lucide-react";
 import QRCodeDisplay from "./QRCodeDisplay";
+import { DbRequest } from "@/lib/types";
 
 const typeIcons = {
   od: FileText,
@@ -14,7 +15,7 @@ const typeLabels = {
 };
 
 interface Props {
-  request: any;
+  request: DbRequest;
 }
 
 const StatusCard = ({ request }: Props) => {
@@ -69,6 +70,13 @@ const StatusBadge = ({ status }: { status: string }) => {
     return (
       <span className="flex items-center gap-1 text-xs font-outfit font-medium text-approved">
         <CheckCircle2 className="w-3.5 h-3.5" /> Approved
+      </span>
+    );
+  }
+  if (status === "coordinator_approved") {
+    return (
+      <span className="flex items-center gap-1 text-xs font-outfit font-medium text-pending">
+        <CheckCircle2 className="w-3.5 h-3.5" /> Coordinator Approved
       </span>
     );
   }

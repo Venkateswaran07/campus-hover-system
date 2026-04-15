@@ -1,24 +1,34 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, FileText, CalendarDays, LogOut } from "lucide-react";
+import { CheckCircle2, XCircle, FileText, CalendarDays, LogOut, Clock, LucideIcon } from "lucide-react";
 import { toast } from "sonner";
+import { DbRequest } from "@/lib/types";
 
 const typeLabels: Record<string, string> = { od: "OD", leave: "Leave", outpass: "Outpass" };
-const typeIcons: Record<string, any> = { od: FileText, leave: CalendarDays, outpass: LogOut };
+const typeIcons: Record<string, LucideIcon> = { od: FileText, leave: CalendarDays, outpass: LogOut };
 
 interface Props {
-  request: any;
+  request: DbRequest;
   onStatusChange?: () => void;
+  role?: "coordinator" | "hod";
 }
 
-const AdminRequestRow = ({ request, onStatusChange }: Props) => {
+const AdminRequestRow = ({ request, onStatusChange, role = "coordinator" }: Props) => {
   const Icon = typeIcons[request.type] || FileText;
-  const isPending = request.status === "pending";
+  
+  const isPending = role === "hod" 
+    ? request.status === "coordinator_approved" 
+    : request.status === "pending";
 
-  const handleUpdateStatus = async (status: string) => {
+  const handleUpdateStatus = async (newStatus: string) => {
+    // If coordinator approves, it moves to coordinator_approved stage
+    const finalStatus = (newStatus === "approved" && role === "coordinator") 
+      ? "coordinator_approved" 
+      : newStatus;
+
     const { error } = await supabase
       .from("requests")
-      .update({ status })
+      .update({ status: finalStatus })
       .eq("id", request.id);
 
     if (error) {
@@ -26,8 +36,10 @@ const AdminRequestRow = ({ request, onStatusChange }: Props) => {
       return;
     }
 
-    if (status === "approved") {
+    if (finalStatus === "approved") {
       toast.success(`Approved ${request.student_name}'s ${typeLabels[request.type]} request`);
+    } else if (finalStatus === "coordinator_approved") {
+      toast.success(`Coordinator review completed for ${request.student_name}`);
     } else {
       toast.error(`Rejected ${request.student_name}'s ${typeLabels[request.type]} request`);
     }
@@ -37,7 +49,7 @@ const AdminRequestRow = ({ request, onStatusChange }: Props) => {
       await supabase.functions.invoke("send-notification", {
         body: {
           request_id: request.id,
-          status,
+          status: finalStatus,
           student_name: request.student_name,
           request_type: request.type,
         },
@@ -50,6 +62,36 @@ const AdminRequestRow = ({ request, onStatusChange }: Props) => {
   };
 
   const createdDate = request.created_at ? new Date(request.created_at).toLocaleDateString() : "";
+
+  const renderStatus = () => {
+    if (isPending) {
+      return (
+        <>
+          <Button variant="approve" size="sm" onClick={() => handleUpdateStatus("approved")}>
+            <CheckCircle2 className="w-3.5 h-3.5" /> {role === "coordinator" ? "Review" : "Approve"}
+          </Button>
+          <Button variant="reject" size="sm" onClick={() => handleUpdateStatus("rejected")}>
+            <XCircle className="w-3.5 h-3.5" /> Reject
+          </Button>
+        </>
+      );
+    }
+
+    const statusProps = {
+      approved: { color: "text-approved", text: "Approved", icon: CheckCircle2 },
+      coordinator_approved: { color: "text-pending", text: "Coordinator Approved", icon: CheckCircle2 },
+      rejected: { color: "text-destructive", text: "Rejected", icon: XCircle },
+      pending: { color: "text-pending", text: "Pending Review", icon: Clock },
+    }[request.status as string] || { color: "text-muted-foreground", text: request.status, icon: Clock };
+
+    const StatusIcon = statusProps.icon;
+
+    return (
+      <span className={`flex items-center gap-1 text-xs font-outfit font-medium ${statusProps.color}`}>
+        <StatusIcon className="w-3.5 h-3.5" /> {statusProps.text}
+      </span>
+    );
+  };
 
   return (
     <div className="rounded-xl bg-background p-4 flex flex-col md:flex-row md:items-center gap-3">
@@ -72,20 +114,7 @@ const AdminRequestRow = ({ request, onStatusChange }: Props) => {
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        {isPending ? (
-          <>
-            <Button variant="approve" size="sm" onClick={() => handleUpdateStatus("approved")}>
-              <CheckCircle2 className="w-3.5 h-3.5" /> Approve
-            </Button>
-            <Button variant="reject" size="sm" onClick={() => handleUpdateStatus("rejected")}>
-              <XCircle className="w-3.5 h-3.5" /> Reject
-            </Button>
-          </>
-        ) : (
-          <span className={`flex items-center gap-1 text-xs font-outfit font-medium ${request.status === "approved" ? "text-approved" : "text-destructive"}`}>
-            {request.status === "approved" ? <><CheckCircle2 className="w-3.5 h-3.5" /> Approved</> : <><XCircle className="w-3.5 h-3.5" /> Rejected</>}
-          </span>
-        )}
+        {renderStatus()}
       </div>
     </div>
   );

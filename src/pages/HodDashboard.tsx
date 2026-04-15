@@ -1,29 +1,32 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, BarChart3, Users, TrendingUp, FileText, CalendarDays, LogOut } from "lucide-react";
+import { ArrowLeft, BarChart3, Users, TrendingUp, FileText, CalendarDays, LogOut, Clock, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { DEPARTMENTS } from "@/lib/mock-data";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import AdminRequestRow from "@/components/admin/AdminRequestRow";
+import { DbRequest, DbProfile } from "@/lib/types";
 
-const STATUS_COLORS = { approved: "#10B981", pending: "#F59E0B", rejected: "#EF4444" };
+const STATUS_COLORS = { approved: "#10B981", coordinator_approved: "#3B82F6", pending: "#F59E0B", rejected: "#EF4444" };
 const TYPE_COLORS = { od: "#2563EB", leave: "#8B5CF6", outpass: "#EC4899" };
 
 const HodDashboard = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const [requests, setRequests] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
+  const [requests, setRequests] = useState<DbRequest[]>([]);
+  const [students, setStudents] = useState<DbProfile[]>([]);
+
+  const fetchData = async () => {
+    const [reqRes, stuRes] = await Promise.all([
+      supabase.from("requests").select("*").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("*").not("roll_number", "is", null),
+    ]);
+    setRequests(reqRes.data || []);
+    setStudents(stuRes.data || []);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const [reqRes, stuRes] = await Promise.all([
-        supabase.from("requests").select("*"),
-        supabase.from("profiles").select("*").not("roll_number", "is", null),
-      ]);
-      setRequests(reqRes.data || []);
-      setStudents(stuRes.data || []);
-    };
     fetchData();
 
     // Realtime: refresh when requests or profiles change
@@ -45,12 +48,22 @@ const HodDashboard = () => {
   const totalRequests = requests.length;
   const totalStudents = students.length;
   const avgAttendance = students.length > 0 ? Math.round(students.reduce((s, st) => s + (st.attendance || 0), 0) / students.length) : 0;
-  const pendingCount = requests.filter((r) => r.status === "pending").length;
+  
+  // HOD actionable requests are those approved by coordinator
+  const actionableRequests = requests.filter((r) => r.status === "coordinator_approved");
+  const pendingAtCoordinator = requests.filter((r) => r.status === "pending").length;
 
   const deptData = useMemo(() => {
     return DEPARTMENTS.map((dept) => {
       const deptReqs = requests.filter((r) => r.department === dept);
-      return { name: dept, total: deptReqs.length, pending: deptReqs.filter((r) => r.status === "pending").length, approved: deptReqs.filter((r) => r.status === "approved").length, rejected: deptReqs.filter((r) => r.status === "rejected").length };
+      return { 
+        name: dept, 
+        total: deptReqs.length, 
+        pending: deptReqs.filter((r) => r.status === "pending").length, 
+        coordinator: deptReqs.filter((r) => r.status === "coordinator_approved").length,
+        approved: deptReqs.filter((r) => r.status === "approved").length, 
+        rejected: deptReqs.filter((r) => r.status === "rejected").length 
+      };
     }).filter((d) => d.total > 0);
   }, [requests]);
 
@@ -61,8 +74,9 @@ const HodDashboard = () => {
   ].filter((d) => d.value > 0), [requests]);
 
   const statusData = useMemo(() => [
-    { name: "Approved", value: requests.filter((r) => r.status === "approved").length, color: STATUS_COLORS.approved },
-    { name: "Pending", value: requests.filter((r) => r.status === "pending").length, color: STATUS_COLORS.pending },
+    { name: "Final Approved", value: requests.filter((r) => r.status === "approved").length, color: STATUS_COLORS.approved },
+    { name: "Awaiting HOD", value: requests.filter((r) => r.status === "coordinator_approved").length, color: STATUS_COLORS.coordinator_approved },
+    { name: "At Coordinator", value: requests.filter((r) => r.status === "pending").length, color: STATUS_COLORS.pending },
     { name: "Rejected", value: requests.filter((r) => r.status === "rejected").length, color: STATUS_COLORS.rejected },
   ].filter((d) => d.value > 0), [requests]);
 
@@ -86,18 +100,39 @@ const HodDashboard = () => {
           className="shadow-raised-sm rounded-lg p-2 bg-background transition-shadow-neu hover:shadow-inset cursor-pointer" title="Sign Out">
           <LogOut className="w-5 h-5 text-foreground" />
         </button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-xl md:text-2xl font-outfit font-semibold text-foreground">HOD Dashboard</h1>
-          <p className="text-sm text-muted-foreground font-outfit">Department reports & statistics</p>
+          <p className="text-sm text-muted-foreground font-outfit">HOD Level Review & Analytics</p>
+        </div>
+        <div className="hidden md:block shadow-inset rounded-xl px-4 py-2 text-primary font-outfit font-medium transition-shadow-neu">
+          {actionableRequests.length} pending your approval
         </div>
       </header>
 
       <div className="px-4 md:px-6 pb-8 space-y-6">
+        {/* New Actionable Requests Section */}
+        <div className="animate-float-up">
+           <h3 className="text-sm font-outfit font-semibold text-primary mb-3 uppercase tracking-wider flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" /> Pending Final Approval ({actionableRequests.length})
+          </h3>
+          <div className="shadow-inset-deep rounded-2xl p-4 md:p-6 bg-background/50">
+            {actionableRequests.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8 font-outfit">No requests awaiting HOD approval.</p>
+            ) : (
+              <div className="space-y-4">
+                {actionableRequests.map((r) => (
+                  <AdminRequestRow key={r.id} request={r} role="hod" onStatusChange={fetchData} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: "Total Requests", value: totalRequests, icon: FileText, color: "text-primary" },
-            { label: "Pending", value: pendingCount, icon: CalendarDays, color: "text-pending" },
-            { label: "Students", value: totalStudents, icon: Users, color: "text-foreground" },
+            { label: "Awaiting HOD", value: actionableRequests.length, icon: CalendarDays, color: "text-blue-500" },
+            { label: "At Coordinator", value: pendingAtCoordinator, icon: Clock, color: "text-pending" },
             { label: "Avg Attendance", value: `${avgAttendance}%`, icon: TrendingUp, color: "text-approved" },
           ].map((stat) => (
             <div key={stat.label} className="shadow-raised rounded-2xl bg-background p-5 animate-float-up">
@@ -123,6 +158,7 @@ const HodDashboard = () => {
                     <YAxis tick={{ fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} allowDecimals={false} />
                     <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "3px 3px 8px #d1d9e6, -3px -3px 8px #ffffff", fontFamily: "Outfit", fontSize: 12 }} />
                     <Bar dataKey="approved" stackId="a" fill={STATUS_COLORS.approved} />
+                    <Bar dataKey="coordinator" stackId="a" fill={STATUS_COLORS.coordinator_approved} />
                     <Bar dataKey="pending" stackId="a" fill={STATUS_COLORS.pending} />
                     <Bar dataKey="rejected" stackId="a" fill={STATUS_COLORS.rejected} radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -182,12 +218,12 @@ const HodDashboard = () => {
 
           <div className="space-y-6">
             <div className="shadow-raised rounded-2xl bg-background p-5">
-              <h3 className="text-sm font-outfit font-semibold text-foreground mb-4 uppercase tracking-wider">Status Overview</h3>
-              <div className="flex gap-4">
+              <h3 className="text-sm font-outfit font-semibold text-foreground mb-4 uppercase tracking-wider">Status Overviewstage</h3>
+              <div className="flex gap-2">
                 {statusData.length > 0 ? statusData.map((d) => (
-                  <div key={d.name} className="flex-1 shadow-inset rounded-xl p-4 text-center">
-                    <p className="font-mono-data text-xl font-semibold" style={{ color: d.color }}>{d.value}</p>
-                    <p className="text-xs text-muted-foreground font-outfit mt-1">{d.name}</p>
+                  <div key={d.name} className="flex-1 shadow-inset rounded-xl p-3 text-center">
+                    <p className="font-mono-data text-lg font-semibold" style={{ color: d.color }}>{d.value}</p>
+                    <p className="text-[10px] text-muted-foreground font-outfit mt-1 leading-tight">{d.name}</p>
                   </div>
                 )) : <p className="text-center text-muted-foreground py-4 font-outfit">No data</p>}
               </div>

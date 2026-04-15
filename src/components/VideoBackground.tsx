@@ -9,7 +9,6 @@ const VideoBackground = () => (
     >
       <source src="/bg-video.mp4" type="video/mp4" />
     </video>
-    <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
   </div>
 );
 

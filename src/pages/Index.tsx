@@ -27,14 +27,14 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background/0 p-4 relative">
+    <div className="flex min-h-screen items-center justify-center p-4 relative">
       <VideoBackground />
       <div className="w-full max-w-lg animate-float-up">
         <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-outfit font-bold text-foreground tracking-tight mb-2">
+          <h1 className="text-3xl md:text-4xl font-outfit font-bold text-white tracking-tight mb-2 drop-shadow-lg">
             Leave & Movement Registry
           </h1>
-          <p className="text-muted-foreground font-outfit">
+          <p className="text-white/70 font-outfit drop-shadow">
             L&M · OD · Leave · Outpass System
           </p>
         </div>
@@ -44,14 +44,14 @@ const Index = () => {
             <button
               key={role.path}
               onClick={() => navigate(role.path)}
-              className="shadow-raised rounded-2xl p-8 bg-background transition-shadow-neu hover:shadow-inset active:shadow-inset-deep flex items-center gap-5 cursor-pointer group"
+              className="rounded-2xl p-8 backdrop-blur-xl bg-white/10 border border-white/20 shadow-lg hover:bg-white/20 active:bg-white/25 transition-all duration-200 flex items-center gap-5 cursor-pointer group"
             >
-              <div className="shadow-raised-sm rounded-xl p-3 bg-background transition-shadow-neu group-hover:shadow-inset">
-                <role.icon className="w-8 h-8 text-primary" />
+              <div className="rounded-xl p-3 backdrop-blur-md bg-white/15 border border-white/25">
+                <role.icon className="w-8 h-8 text-white" />
               </div>
               <div className="text-left">
-                <p className="font-outfit font-semibold text-lg text-foreground">{role.title}</p>
-                <p className="text-sm text-muted-foreground">{role.desc}</p>
+                <p className="font-outfit font-semibold text-lg text-white">{role.title}</p>
+                <p className="text-sm text-white/70">{role.desc}</p>
               </div>
             </button>
           ))}

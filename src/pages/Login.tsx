@@ -18,6 +18,9 @@ const roleConfig: Record<RoleOption, { icon: any; title: string; desc: string }>
   hod: { icon: BarChart3, title: "HOD Dashboard", desc: "Reports, statistics & oversight" },
 };
 
+const glassInput = "w-full rounded-lg px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-sm font-outfit text-white placeholder:text-white/50 outline-none focus:border-white/40 transition-colors";
+const glassSelect = "w-full rounded-lg px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-sm font-outfit text-white outline-none cursor-pointer focus:border-white/40 transition-colors";
+
 const Login = () => {
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
@@ -37,14 +40,14 @@ const Login = () => {
 
   if (!selectedRole) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background/0 p-4 relative">
+      <div className="flex min-h-screen items-center justify-center p-4 relative">
         <VideoBackground />
         <div className="w-full max-w-lg animate-float-up">
           <div className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-outfit font-bold text-foreground tracking-tight mb-2">
-              Campus Governance
+            <h1 className="text-3xl md:text-4xl font-outfit font-bold text-white tracking-tight mb-2 drop-shadow-lg">
+              Leave & Movement Registry
             </h1>
-            <p className="text-muted-foreground font-outfit">Select your portal to continue</p>
+            <p className="text-white/70 font-outfit drop-shadow">Select your portal to continue</p>
           </div>
           <div className="flex flex-col gap-6">
             {(Object.keys(roleConfig) as RoleOption[]).map((r) => {
@@ -53,14 +56,14 @@ const Login = () => {
                 <button
                   key={r}
                   onClick={() => setSelectedRole(r)}
-                  className="shadow-raised rounded-2xl p-8 bg-background transition-shadow-neu hover:shadow-inset active:shadow-inset-deep flex items-center gap-5 cursor-pointer group"
+                  className="rounded-2xl p-8 backdrop-blur-xl bg-white/10 border border-white/20 shadow-lg hover:bg-white/20 active:bg-white/25 transition-all duration-200 flex items-center gap-5 cursor-pointer group"
                 >
-                  <div className="shadow-raised-sm rounded-xl p-3 bg-background transition-shadow-neu group-hover:shadow-inset">
-                    <cfg.icon className="w-8 h-8 text-primary" />
+                  <div className="rounded-xl p-3 backdrop-blur-md bg-white/15 border border-white/25">
+                    <cfg.icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-left">
-                    <p className="font-outfit font-semibold text-lg text-foreground">{cfg.title}</p>
-                    <p className="text-sm text-muted-foreground">{cfg.desc}</p>
+                    <p className="font-outfit font-semibold text-lg text-white">{cfg.title}</p>
+                    <p className="text-sm text-white/70">{cfg.desc}</p>
                   </div>
                 </button>
               );
@@ -71,7 +74,6 @@ const Login = () => {
     );
   }
 
-  // HOD portal: only sign-in, no sign-up
   const showSignUpToggle = selectedRole !== "hod";
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,13 +82,11 @@ const Login = () => {
 
     try {
       if (isSignUp) {
-        // Block HOD signup entirely
         if (selectedRole === "hod") {
           toast.error("HOD accounts cannot be created. Please contact admin.");
           return;
         }
 
-        // Validate coordinator access code
         if (selectedRole === "coordinator") {
           if (accessCode !== COORDINATOR_ACCESS_CODE) {
             toast.error("Invalid coordinator access code. Contact your department admin for the code.");
@@ -107,7 +107,6 @@ const Login = () => {
           toast.error(error.message);
         } else {
           toast.success("Account created! Signing you in...");
-          // Auto-confirm is enabled, so sign in immediately
           const { error: signInErr } = await signIn(email, password);
           if (signInErr) {
             toast.error("Account created but sign-in failed. Please sign in manually.");
@@ -117,14 +116,12 @@ const Login = () => {
           }
         }
       } else {
-        // Sign in
         const { error } = await signIn(email, password);
         if (error) {
           toast.error(error.message);
           return;
         }
 
-        // After sign-in, verify the user's actual role matches the selected portal
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           toast.error("Login failed. Please try again.");
@@ -138,8 +135,6 @@ const Login = () => {
           .maybeSingle();
 
         const actualRole = roleData?.role as RoleOption | null;
-
-        // If no role in user_roles, default to student
         const effectiveRole: RoleOption = actualRole ?? "student";
 
         if (effectiveRole !== selectedRole) {
@@ -148,7 +143,6 @@ const Login = () => {
           return;
         }
 
-        // HOD portal: only allow the designated email
         if (selectedRole === "hod" && email.toLowerCase() !== "310624104366@eec.srmrmp.edu.in") {
           toast.error("Only the designated HOD account can access this portal.");
           await supabase.auth.signOut();
@@ -166,25 +160,25 @@ const Login = () => {
   const cfg = roleConfig[selectedRole];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background/0 p-4 relative">
+    <div className="flex min-h-screen items-center justify-center p-4 relative">
       <VideoBackground />
       <div className="w-full max-w-md animate-float-up">
         <button
           onClick={() => { setSelectedRole(null); setIsSignUp(false); setAccessCode(""); }}
-          className="shadow-raised-sm rounded-lg p-2 bg-background transition-shadow-neu hover:shadow-inset cursor-pointer mb-6"
+          className="rounded-lg p-2 backdrop-blur-md bg-white/10 border border-white/20 hover:bg-white/20 transition-all cursor-pointer mb-6"
         >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+          <ArrowLeft className="w-5 h-5 text-white" />
         </button>
 
-        <div className="shadow-raised rounded-2xl bg-background p-8">
+        <div className="rounded-2xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-lg p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="shadow-inset rounded-xl p-3">
-              <cfg.icon className="w-6 h-6 text-primary" />
+            <div className="rounded-xl p-3 bg-white/15 border border-white/25">
+              <cfg.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="font-outfit font-semibold text-xl text-foreground">{cfg.title}</h2>
+              <h2 className="font-outfit font-semibold text-xl text-white">{cfg.title}</h2>
               {selectedRole === "hod" && (
-                <p className="text-xs text-muted-foreground">Authorized access only</p>
+                <p className="text-xs text-white/60">Authorized access only</p>
               )}
             </div>
           </div>
@@ -192,12 +186,12 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
               <div>
-                <label className="text-sm text-muted-foreground font-outfit mb-1 block">Full Name</label>
+                <label className="text-sm text-white/70 font-outfit mb-1 block">Full Name</label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground placeholder:text-muted-foreground outline-none"
+                  className={glassInput}
                   placeholder="Enter your full name"
                   required
                 />
@@ -205,41 +199,40 @@ const Login = () => {
             )}
 
             <div>
-              <label className="text-sm text-muted-foreground font-outfit mb-1 block">Email</label>
+              <label className="text-sm text-white/70 font-outfit mb-1 block">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground placeholder:text-muted-foreground outline-none"
+                className={glassInput}
                 placeholder="Enter your email"
                 required
               />
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground font-outfit mb-1 block">Password</label>
+              <label className="text-sm text-white/70 font-outfit mb-1 block">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground placeholder:text-muted-foreground outline-none"
+                className={glassInput}
                 placeholder="Enter your password"
                 required
                 minLength={6}
               />
             </div>
 
-            {/* Coordinator access code */}
             {isSignUp && selectedRole === "coordinator" && (
               <div>
-                <label className="text-sm text-muted-foreground font-outfit mb-1 block flex items-center gap-1">
+                <label className="text-sm text-white/70 font-outfit mb-1 block flex items-center gap-1">
                   <Lock className="w-3 h-3" /> Coordinator Access Code
                 </label>
                 <input
                   type="password"
                   value={accessCode}
                   onChange={(e) => setAccessCode(e.target.value)}
-                  className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground placeholder:text-muted-foreground outline-none"
+                  className={glassInput}
                   placeholder="Enter the access code provided by admin"
                   required
                 />
@@ -250,60 +243,45 @@ const Login = () => {
               <>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="text-sm text-muted-foreground font-outfit mb-1 block">Department</label>
-                    <select
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
-                      required
-                    >
+                    <label className="text-sm text-white/70 font-outfit mb-1 block">Department</label>
+                    <select value={department} onChange={(e) => setDepartment(e.target.value)} className={glassSelect} required>
                       <option value="">Select</option>
-                      {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                      {DEPARTMENTS.map((d) => <option key={d} value={d} className="text-black">{d}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm text-muted-foreground font-outfit mb-1 block">Year</label>
-                    <select
-                      value={year}
-                      onChange={(e) => setYear(e.target.value)}
-                      className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
-                      required
-                    >
+                    <label className="text-sm text-white/70 font-outfit mb-1 block">Year</label>
+                    <select value={year} onChange={(e) => setYear(e.target.value)} className={glassSelect} required>
                       <option value="">Select</option>
-                      {YEARS.map((y) => <option key={y} value={y}>Year {y}</option>)}
+                      {YEARS.map((y) => <option key={y} value={y} className="text-black">Year {y}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm text-muted-foreground font-outfit mb-1 block">Section</label>
-                    <select
-                      value={section}
-                      onChange={(e) => setSection(e.target.value)}
-                      className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
-                      required
-                    >
+                    <label className="text-sm text-white/70 font-outfit mb-1 block">Section</label>
+                    <select value={section} onChange={(e) => setSection(e.target.value)} className={glassSelect} required>
                       <option value="">Select</option>
-                      {SECTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                      {SECTIONS.map((s) => <option key={s} value={s} className="text-black">{s}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground font-outfit mb-1 block">Roll Number</label>
+                  <label className="text-sm text-white/70 font-outfit mb-1 block">Roll Number</label>
                   <input
                     type="text"
                     value={rollNumber}
                     onChange={(e) => setRollNumber(e.target.value)}
-                    className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground placeholder:text-muted-foreground outline-none"
+                    className={glassInput}
                     placeholder="e.g. 21CS042"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground font-outfit mb-1 block">Parent Phone</label>
+                  <label className="text-sm text-white/70 font-outfit mb-1 block">Parent Phone</label>
                   <input
                     type="tel"
                     value={parentPhone}
                     onChange={(e) => setParentPhone(e.target.value)}
-                    className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground placeholder:text-muted-foreground outline-none"
+                    className={glassInput}
                     placeholder="+91 98765 43210"
                   />
                 </div>
@@ -313,33 +291,23 @@ const Login = () => {
             {isSignUp && selectedRole === "coordinator" && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm text-muted-foreground font-outfit mb-1 block">Department</label>
-                  <select
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
-                    required
-                  >
+                  <label className="text-sm text-white/70 font-outfit mb-1 block">Department</label>
+                  <select value={department} onChange={(e) => setDepartment(e.target.value)} className={glassSelect} required>
                     <option value="">Select</option>
-                    {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                    {DEPARTMENTS.map((d) => <option key={d} value={d} className="text-black">{d}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground font-outfit mb-1 block">Section</label>
-                  <select
-                    value={section}
-                    onChange={(e) => setSection(e.target.value)}
-                    className="w-full shadow-inset rounded-lg px-4 py-3 bg-transparent text-sm font-outfit text-foreground outline-none cursor-pointer"
-                    required
-                  >
+                  <label className="text-sm text-white/70 font-outfit mb-1 block">Section</label>
+                  <select value={section} onChange={(e) => setSection(e.target.value)} className={glassSelect} required>
                     <option value="">Select</option>
-                    {SECTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    {SECTIONS.map((s) => <option key={s} value={s} className="text-black">{s}</option>)}
                   </select>
                 </div>
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+            <Button type="submit" size="lg" className="w-full backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30" disabled={loading}>
               {loading ? (
                 <span className="animate-pulse">Please wait...</span>
               ) : isSignUp ? (
@@ -354,7 +322,7 @@ const Login = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm text-primary font-outfit hover:underline cursor-pointer"
+                className="text-sm text-white/80 font-outfit hover:text-white hover:underline cursor-pointer"
               >
                 {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
               </button>

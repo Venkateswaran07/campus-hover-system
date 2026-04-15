@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, Shield, BarChart3, ArrowLeft, LogIn, UserPlus, Lock } from "lucide-react";
+import { GraduationCap, Shield, BarChart3, ArrowLeft, LogIn, UserPlus, Lock, LucideIcon } from "lucide-react";
 import VideoBackground from "@/components/VideoBackground";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
@@ -12,14 +12,14 @@ type RoleOption = "student" | "coordinator" | "hod";
 
 const COORDINATOR_ACCESS_CODE = "COORD2025";
 
-const roleConfig: Record<RoleOption, { icon: any; title: string; desc: string }> = {
+const roleConfig: Record<RoleOption, { icon: LucideIcon; title: string; desc: string }> = {
   student: { icon: GraduationCap, title: "Student Portal", desc: "Apply for OD, Leave & Outpass" },
   coordinator: { icon: Shield, title: "Coordinator Console", desc: "Review requests & verify contacts" },
   hod: { icon: BarChart3, title: "HOD Dashboard", desc: "Reports, statistics & oversight" },
 };
 
-const glassInput = "w-full rounded-lg px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-sm font-outfit text-white placeholder:text-white/50 outline-none focus:border-white/40 transition-colors";
-const glassSelect = "w-full rounded-lg px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-sm font-outfit text-white outline-none cursor-pointer focus:border-white/40 transition-colors";
+const glassInput = "w-full rounded-lg px-4 py-3 bg-black/40 backdrop-blur-2xl border border-white/20 text-sm font-outfit text-white placeholder:text-white/50 outline-none focus:border-white/40 transition-colors";
+const glassSelect = "w-full rounded-lg px-4 py-3 bg-black/40 backdrop-blur-2xl border border-white/20 text-sm font-outfit text-white outline-none cursor-pointer focus:border-white/40 transition-colors";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -56,9 +56,9 @@ const Login = () => {
                 <button
                   key={r}
                   onClick={() => setSelectedRole(r)}
-                  className="rounded-2xl p-8 backdrop-blur-xl bg-white/10 border border-white/20 shadow-lg hover:bg-white/20 active:bg-white/25 transition-all duration-200 flex items-center gap-5 cursor-pointer group"
+                  className="rounded-2xl p-8 backdrop-blur-2xl bg-black/40 border border-white/20 shadow-lg hover:bg-black/60 active:bg-black/70 transition-all duration-200 flex items-center gap-5 cursor-pointer group"
                 >
-                  <div className="rounded-xl p-3 backdrop-blur-md bg-white/15 border border-white/25">
+                  <div className="rounded-xl p-3 backdrop-blur-md bg-white/10 border border-white/20">
                     <cfg.icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-left">
@@ -165,14 +165,16 @@ const Login = () => {
       <div className="w-full max-w-md animate-float-up">
         <button
           onClick={() => { setSelectedRole(null); setIsSignUp(false); setAccessCode(""); }}
-          className="rounded-lg p-2 backdrop-blur-md bg-white/10 border border-white/20 hover:bg-white/20 transition-all cursor-pointer mb-6"
+          className="rounded-lg p-2 backdrop-blur-xl bg-black/40 border border-white/20 hover:bg-black/60 transition-all cursor-pointer mb-6"
+          title="Go back"
+          aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
 
-        <div className="rounded-2xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-lg p-8">
+        <div className="rounded-2xl backdrop-blur-2xl bg-black/40 border border-white/20 shadow-lg p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="rounded-xl p-3 bg-white/15 border border-white/25">
+            <div className="rounded-xl p-3 bg-white/10 border border-white/20">
               <cfg.icon className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -244,21 +246,21 @@ const Login = () => {
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="text-sm text-white/70 font-outfit mb-1 block">Department</label>
-                    <select value={department} onChange={(e) => setDepartment(e.target.value)} className={glassSelect} required>
+                    <select title="Select Department" value={department} onChange={(e) => setDepartment(e.target.value)} className={glassSelect} required>
                       <option value="">Select</option>
                       {DEPARTMENTS.map((d) => <option key={d} value={d} className="text-black">{d}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="text-sm text-white/70 font-outfit mb-1 block">Year</label>
-                    <select value={year} onChange={(e) => setYear(e.target.value)} className={glassSelect} required>
+                    <select title="Select Year" value={year} onChange={(e) => setYear(e.target.value)} className={glassSelect} required>
                       <option value="">Select</option>
                       {YEARS.map((y) => <option key={y} value={y} className="text-black">Year {y}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="text-sm text-white/70 font-outfit mb-1 block">Section</label>
-                    <select value={section} onChange={(e) => setSection(e.target.value)} className={glassSelect} required>
+                    <select title="Select Section" value={section} onChange={(e) => setSection(e.target.value)} className={glassSelect} required>
                       <option value="">Select</option>
                       {SECTIONS.map((s) => <option key={s} value={s} className="text-black">{s}</option>)}
                     </select>
@@ -307,7 +309,7 @@ const Login = () => {
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30" disabled={loading}>
+            <Button type="submit" size="lg" className="w-full backdrop-blur-xl bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-all" disabled={loading}>
               {loading ? (
                 <span className="animate-pulse">Please wait...</span>
               ) : isSignUp ? (

@@ -98,9 +98,11 @@
 
   /* Scroll fade overlays */
   .scroll-fade-top {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 24px);
     mask-image: linear-gradient(to bottom, transparent, black 24px);
   }
   .scroll-fade-bottom {
+    -webkit-mask-image: linear-gradient(to top, transparent, black 24px);
     mask-image: linear-gradient(to top, transparent, black 24px);
   }
 

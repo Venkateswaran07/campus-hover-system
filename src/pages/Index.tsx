@@ -30,10 +30,10 @@ const Index = () => {
       <div className="w-full max-w-lg animate-float-up">
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-outfit font-bold text-foreground tracking-tight mb-2">
-            Campus Governance
+            Leave & Movement Registry
           </h1>
           <p className="text-muted-foreground font-outfit">
-            Unified OD · Leave · Outpass System
+            L&M · OD · Leave · Outpass System
           </p>
         </div>
 

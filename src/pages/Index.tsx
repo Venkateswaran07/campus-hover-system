@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Shield, BarChart3 } from "lucide-react";
+import VideoBackground from "@/components/VideoBackground";
 
 const roles = [
   {

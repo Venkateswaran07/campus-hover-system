@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Shield, BarChart3, ArrowLeft, LogIn, UserPlus, Lock } from "lucide-react";
+import VideoBackground from "@/components/VideoBackground";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Shield, BarChart3, ArrowLeft, LogIn, UserPlus, Lock } from "lucide-react";
+import VideoBackground from "@/components/VideoBackground";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +37,8 @@ const Login = () => {
 
   if (!selectedRole) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="flex min-h-screen items-center justify-center bg-background/0 p-4 relative">
+        <VideoBackground />
         <div className="w-full max-w-lg animate-float-up">
           <div className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-outfit font-bold text-foreground tracking-tight mb-2">
@@ -164,7 +166,8 @@ const Login = () => {
   const cfg = roleConfig[selectedRole];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background/0 p-4 relative">
+      <VideoBackground />
       <div className="w-full max-w-md animate-float-up">
         <button
           onClick={() => { setSelectedRole(null); setIsSignUp(false); setAccessCode(""); }}

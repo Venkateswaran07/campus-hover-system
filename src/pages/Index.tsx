@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Shield, BarChart3 } from "lucide-react";
+import VideoBackground from "@/components/VideoBackground";
 
 const roles = [
   {
@@ -26,7 +27,8 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background/0 p-4 relative">
+      <VideoBackground />
       <div className="w-full max-w-lg animate-float-up">
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-outfit font-bold text-foreground tracking-tight mb-2">
